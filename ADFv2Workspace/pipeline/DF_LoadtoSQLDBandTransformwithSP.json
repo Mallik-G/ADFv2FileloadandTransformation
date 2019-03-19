@@ -1,0 +1,55 @@
+{
+	"name": "DF_LoadtoSQLDBandTransformwithSP",
+	"properties": {
+		"activities": [
+			{
+				"name": "Dataflowblobtosql",
+				"type": "ExecuteDataFlow",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Dataflowblobtosql",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"computeType": "General",
+						"coreCount": 8
+					}
+				}
+			},
+			{
+				"name": "SQLDB_Transformation",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Dataflowblobtosql",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"storedProcedureName": "[asr].[sp_Transformation]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase",
+					"type": "LinkedServiceReference"
+				}
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

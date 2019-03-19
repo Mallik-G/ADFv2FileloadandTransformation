@@ -1,0 +1,28 @@
+{
+	"name": "Dataflowblobtosql",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "FIlesource_blob",
+						"type": "DatasetReference"
+					},
+					"name": "BlobSamplefile",
+					"script": "source(output(\n\t\t{Service Vendor} as string,\n\t\t{Line of business} as string,\n\t\tPO as string,\n\t\tSKU as string,\n\t\tQuantity as short,\n\t\t{Serial Number} as string,\n\t\t{CVE SKU} as string,\n\t\t{OEM SKU} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> BlobSamplefile"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SQLDB_taxt_filename",
+						"type": "DatasetReference"
+					},
+					"name": "SQLDB",
+					"script": "BlobSamplefile sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tstaged: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\trecreate:true) ~> SQLDB"
+				}
+			]
+		}
+	}
+}

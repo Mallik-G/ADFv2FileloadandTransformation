@@ -1,0 +1,24 @@
+{
+	"name": "Sourcefile",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Blobnithsfileshare",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureBlob",
+		"typeProperties": {
+			"format": {
+				"type": "TextFormat",
+				"columnDelimiter": ",",
+				"rowDelimiter": "",
+				"nullValue": "\\N",
+				"treatEmptyAsNull": true,
+				"skipLineCount": 0,
+				"firstRowAsHeader": true
+			},
+			"fileName": "Sample_File.csv",
+			"folderPath": "adftest/File"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

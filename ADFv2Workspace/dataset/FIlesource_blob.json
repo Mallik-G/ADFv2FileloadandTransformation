@@ -1,0 +1,55 @@
+{
+	"name": "FIlesource_blob",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Blobnithsfileshare",
+			"type": "LinkedServiceReference"
+		},
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Sample_File.csv",
+				"folderPath": "File",
+				"container": "adftest"
+			},
+			"columnDelimiter": ",",
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "Service Vendor",
+				"type": "String"
+			},
+			{
+				"name": "Line of business",
+				"type": "String"
+			},
+			{
+				"name": "AsurionPO",
+				"type": "String"
+			},
+			{
+				"name": "Asurion SKU",
+				"type": "String"
+			},
+			{
+				"name": "Quantity",
+				"type": "String"
+			},
+			{
+				"name": "Serial Number",
+				"type": "String"
+			},
+			{
+				"name": "CVE SKU",
+				"type": "String"
+			},
+			{
+				"name": "OEM SKU",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

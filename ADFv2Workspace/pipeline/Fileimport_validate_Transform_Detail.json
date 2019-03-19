@@ -1,0 +1,128 @@
+{
+	"name": "Fileimport_validate_Transform_Detail",
+	"properties": {
+		"activities": [
+			{
+				"name": "LKP_CheckFileConfig",
+				"description": "Validation 2 : Check if Configuration exist for this file in File Config :\nThis will check config table in SQL DB to verify if file with this name has config .\nIf there is no config SP will return False.",
+				"type": "Lookup",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "SqlSource",
+						"sqlReaderStoredProcedureName": "[asr].[sp_FileConfigCheck]",
+						"storedProcedureParameters": {
+							"Filename": {
+								"type": "String",
+								"value": {
+									"value": "@pipeline().parameters.Filename",
+									"type": "Expression"
+								}
+							},
+							"Reamrks": {
+								"type": "String",
+								"value": "Check FIle exist"
+							}
+						}
+					},
+					"dataset": {
+						"referenceName": "sqlDBstoreproc",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "CheckConfigExist",
+				"description": "Based on file config flag from previous Lookup step this will redirect if else condition Accordingly.\n\nIf File config exist True condition part will call dataflow to load File and perform transformation.\n\nIf file doesn't Exist false condition will calls a stored procedure from Azure SQL DB and Logs an Exception.",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "LKP_CheckFileConfig",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"expression": {
+						"value": "@{equals(activity('LKP_CheckFileConfig').output.firstRow.fileexist,1)}",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Missing_Config_Exception",
+							"type": "SqlServerStoredProcedure",
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"typeProperties": {
+								"storedProcedureName": "[asr].[sp_Filelog_Exception]",
+								"storedProcedureParameters": {
+									"ADFRunId": {
+										"value": "1",
+										"type": "Int32"
+									},
+									"Exception": {
+										"value": "Config is missing",
+										"type": "String"
+									},
+									"Filename": {
+										"value": {
+											"value": "@pipeline().parameters.Filename",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "AzureSqlDatabase",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "DataFlow file load and transformation",
+							"type": "ExecuteDataFlow",
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DataflowTransformationandwritetoCSV",
+									"type": "DataFlowReference"
+								},
+								"compute": {
+									"computeType": "General",
+									"coreCount": 8
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"Filename": {
+				"type": "String",
+				"defaultValue": "Sample_File.csv"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

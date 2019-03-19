@@ -1,0 +1,38 @@
+{
+	"name": "DataflowTransformationandwritetoCSV",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "FIlesource_blob",
+						"type": "DatasetReference"
+					},
+					"name": "Samplefilesource",
+					"script": "source(output(\n\t\t{Service Vendor} as string,\n\t\t{Line of business} as string,\n\t\tPO as string,\n\t\tSKU as string,\n\t\tQuantity as short,\n\t\t{Serial Number} as string,\n\t\t{CVE SKU} as string,\n\t\t{OEM SKU} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tmoveFiles: ['/File','/Archive']) ~> Samplefilesource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Destination_csv",
+						"type": "DatasetReference"
+					},
+					"name": "Writetocsvfile",
+					"script": "Selectrequiredcolumn sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['Finalresult']) ~> Writetocsvfile"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SplitDerivedcolumn",
+					"script": "Samplefilesource derive(CVE_Split_Splitcolumn = right({CVE SKU},3)) ~> SplitDerivedcolumn"
+				},
+				{
+					"name": "Selectrequiredcolumn",
+					"script": "SplitDerivedcolumn select(mapColumn(\n\t\t{Service Vendor},\n\t\t{Line of business},\n\t\tPO,\n\t\tSKU,\n\t\tQuantity,\n\t\t{Serial Number},\n\t\t{CVE SKU},\n\t\t{OEM SKU},\n\t\tCVE_Split_Splitcolumn\n\t))~> Selectrequiredcolumn"
+				}
+			]
+		}
+	}
+}

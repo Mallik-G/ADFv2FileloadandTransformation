@@ -1,0 +1,11 @@
+{
+	"name": "sqlDBstoreproc",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable"
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

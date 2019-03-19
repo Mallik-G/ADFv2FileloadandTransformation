@@ -1,0 +1,15 @@
+{
+	"name": "SQLDB_taxt_filename",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": "asr.Sampletable"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
