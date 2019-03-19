@@ -28,3 +28,12 @@ I am using [Stored proc](https://docs.microsoft.com/en-us/azure/data-factory/tra
 * Create [Blob storage](https://docs.microsoft.com/en-us/azure/data-factory/quickstart-create-data-factory-portal#azure-storage-account)   
 * Create [SQL DB](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started) if you are opting the Option 2 design. 
 
+
+## Adf v2 Sample actvity Explanation :
+ Assumptions : 
+ * File is already placed in Blob storage .
+ * Change the connection string for Blob and SQL DB connection once ARM template is imported to your ADF v2 workspace.
+ * Change the filename 
+ * File name pareameter has to be changed  in activity level parameter "Filename".
+ 
+
