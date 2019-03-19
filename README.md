@@ -40,6 +40,6 @@ Assumptions :
  * Import Sample ADF pipeline from my  [Github Repo folder ADFv2Workspace](https://github.com/nikris87/ADFv2FileloadandTransformation/tree/master/ADFv2Workspace) using github integration option in ADF 
  
  
- * There are 2 example one for  mater Pieline
+ * There are 2 example one for for 
 
 
