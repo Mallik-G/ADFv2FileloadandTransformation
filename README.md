@@ -39,6 +39,7 @@ Assumptions :
  # Importing Sample Pipelines :
  * Import Sample ADF pipeline from my  [Github Repo folder ADFv2Workspace](https://github.com/nikris87/ADFv2FileloadandTransformation/tree/master/ADFv2Workspace) using github integration option in ADF 
  
+ * Execute create table script and SP to validate custom validation inserted into thease tables.
  
  * There are 2 example:
  # 1. Pipeline(Using datafloe transformation): Fileimport_validate_Transform_DF  :
