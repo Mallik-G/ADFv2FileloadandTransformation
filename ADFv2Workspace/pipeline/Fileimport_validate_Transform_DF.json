@@ -47,7 +47,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "SqlSource",
-						"sqlReaderStoredProcedureName": "[asr].[sp_Filelogtest]",
+						"sqlReaderStoredProcedureName": "[asr].[sp_Fileexist]",
 						"storedProcedureParameters": {
 							"Filename": {
 								"type": "String",
