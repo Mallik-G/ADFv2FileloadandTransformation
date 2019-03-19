@@ -1,0 +1,48 @@
+{
+	"name": "TransformedTable",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Service Vendor",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Line of business",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PO",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SKU",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Quantity",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Serial Number",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CVE SKU",
+				"type": "nvarchar"
+			},
+			{
+				"name": "OEM SKU",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"tableName": "[asr].[Finaltable]"
+		}
+	}
+}

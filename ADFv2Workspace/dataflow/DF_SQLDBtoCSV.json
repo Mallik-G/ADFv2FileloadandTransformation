@@ -1,0 +1,28 @@
+{
+	"name": "DF_SQLDBtoCSV",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "TransformedTable",
+						"type": "DatasetReference"
+					},
+					"name": "SQLDB_table",
+					"script": "source(output(\n\t\t{Service Vendor} as string,\n\t\t{Line of business} as string,\n\t\tPO as string,\n\t\tSKU as string,\n\t\tQuantity as integer,\n\t\t{Serial Number} as string,\n\t\t{CVE SKU} as string,\n\t\t{OEM SKU} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> SQLDB_table"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Destination_csv",
+						"type": "DatasetReference"
+					},
+					"name": "sink1",
+					"script": "SQLDB_table sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['finalresult'],\n\ttruncate:true) ~> sink1"
+				}
+			]
+		}
+	}
+}
