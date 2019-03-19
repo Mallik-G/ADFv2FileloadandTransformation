@@ -92,7 +92,7 @@
 							"type": "ExecutePipeline",
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "Fileimport_validate_Transform_Detail",
+									"referenceName": "DF_LoadtoSQLDBandTransformwithSP",
 									"type": "PipelineReference"
 								}
 							}
