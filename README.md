@@ -8,4 +8,4 @@ You can use one of the below option for Transformation.
 1. Using Data Flow:
 https://docs.microsoft.com/en-us/azure/data-factory/concepts-data-flow-overview 
 
-![Image of ADFv2 Trandf using Dataflow](ADFv2FileloadandTransformation/ADFv2Dataflow.PNG)
+![ADF v2 with Dataflow(Preview)](https://github.com/nikris87/ADFv2FileloadandTransformation/blob/master/ADFv2Dataflow.PNG)
