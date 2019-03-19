@@ -152,7 +152,7 @@
 						"typeProperties": {
 							"source": {
 								"type": "SqlSource",
-								"sqlReaderStoredProcedureName": "[concat('[', 'asr].[sp_Filelogtest]')]",
+								"sqlReaderStoredProcedureName": "[concat('[', 'asr].[sp_Fileexist]')]",
 								"storedProcedureParameters": {
 									"Filename": {
 										"type": "String",
@@ -471,7 +471,7 @@
 						"typeProperties": {
 							"source": {
 								"type": "SqlSource",
-								"sqlReaderStoredProcedureName": "[concat('[', 'asr].[sp_Filelogtest]')]",
+								"sqlReaderStoredProcedureName": "[concat('[', 'asr].[sp_Fileexist]')]",
 								"storedProcedureParameters": {
 									"Filename": {
 										"type": "String",

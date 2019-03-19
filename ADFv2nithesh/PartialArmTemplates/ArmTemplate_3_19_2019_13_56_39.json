@@ -1,0 +1,322 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory Name",
+			"defaultValue": "ADFv2nithesh"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Fileimport_validate_Transform_DF')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "GetFile_Column_Count",
+						"description": "You can use this to get Met data activity if you want to retrieve file metadata in case you are triggering pipeline based on new file event on Blob ",
+						"type": "GetMetadata",
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Sourcefile",
+								"type": "DatasetReference"
+							},
+							"fieldList": [
+								"columnCount",
+								"itemName",
+								"exists"
+							]
+						}
+					},
+					{
+						"name": "CheckIfFileLareadyLoaded",
+						"description": "Validation 1 : Check if file already loaded :\nThis will check log table in SQL DB to varify if file with this name is already processed .If its a new file stored procedure will insert the record to log table .",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "GetFile_Column_Count",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"source": {
+								"type": "SqlSource",
+								"sqlReaderStoredProcedureName": "[concat('[', 'asr].[sp_Fileexist]')]",
+								"storedProcedureParameters": {
+									"Filename": {
+										"type": "String",
+										"value": {
+											"value": "@activity('GetFile_Column_Count').output.itemName",
+											"type": "Expression"
+										}
+									},
+									"Reamrks": {
+										"type": "String",
+										"value": "File insert"
+									}
+								}
+							},
+							"dataset": {
+								"referenceName": "sqlDBstoreproc",
+								"type": "DatasetReference"
+							},
+							"firstRowOnly": true
+						}
+					},
+					{
+						"name": "if file exist",
+						"description": "Based on file already processed or not flag from previous Lookup step this will redirect if else condition Accordingly.\n\nIf File already exist True condition part will calls a stored procedure from Azure SQL DB and Logs an Exception.\n\nIf file doesn't Exist false condition will call another pipeline to validate the another condition.",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "CheckIfFileLareadyLoaded",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"typeProperties": {
+							"expression": {
+								"value": "@{equals(activity('CheckIfFileLareadyLoaded').output.firstRow.fileexist,1)}",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "New_file_Activity",
+									"type": "ExecutePipeline",
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "Fileimport_validate_Transform_Detail",
+											"type": "PipelineReference"
+										}
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "WriteException_Fileexist",
+									"type": "SqlServerStoredProcedure",
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"typeProperties": {
+										"storedProcedureName": "[concat('[', 'asr].[sp_Filelog_Exception]')]",
+										"storedProcedureParameters": {
+											"ADFRunId": {
+												"value": {
+													"value": "1",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"Exception": {
+												"value": "File already processed:Duplicate file",
+												"type": "String"
+											},
+											"Filename": {
+												"value": {
+													"value": "@pipeline().parameters.Filename",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "AzureSqlDatabase",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"parameters": {
+					"Filename": {
+						"type": "String",
+						"defaultValue": "Sample_File.csv"
+					}
+				}
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Fileimport_validate_Transform_SP')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "GetFile_Column_Count",
+						"description": "You can use this to get Met data activity if you want to retrieve file metadata in case you are triggering pipeline based on new file event on Blob ",
+						"type": "GetMetadata",
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Sourcefile",
+								"type": "DatasetReference"
+							},
+							"fieldList": [
+								"columnCount",
+								"itemName",
+								"exists"
+							]
+						}
+					},
+					{
+						"name": "CheckIfFileLareadyLoaded",
+						"description": "Validation 1 : Check if file already loaded :\nThis will check log table in SQL DB to varify if file with this name is already processed .If its a new file stored procedure will insert the record to log table .",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "GetFile_Column_Count",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"source": {
+								"type": "SqlSource",
+								"sqlReaderStoredProcedureName": "[concat('[', 'asr].[sp_Fileexist]')]",
+								"storedProcedureParameters": {
+									"Filename": {
+										"type": "String",
+										"value": {
+											"value": "@activity('GetFile_Column_Count').output.itemName",
+											"type": "Expression"
+										}
+									},
+									"Reamrks": {
+										"type": "String",
+										"value": "File insert"
+									}
+								}
+							},
+							"dataset": {
+								"referenceName": "sqlDBstoreproc",
+								"type": "DatasetReference"
+							},
+							"firstRowOnly": true
+						}
+					},
+					{
+						"name": "if file exist",
+						"description": "Based on file already processed or not flag from previous Lookup step this will redirect if else condition Accordingly.\n\nIf File already exist True condition part will calls a stored procedure from Azure SQL DB and Logs an Exception.\n\nIf file doesn't Exist false condition will call another pipeline to validate the another condition.",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "CheckIfFileLareadyLoaded",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"typeProperties": {
+							"expression": {
+								"value": "@{equals(activity('CheckIfFileLareadyLoaded').output.firstRow.fileexist,1)}",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "New_file_Activity",
+									"type": "ExecutePipeline",
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "DF_LoadtoSQLDBandTransformwithSP",
+											"type": "PipelineReference"
+										}
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "WriteException_Fileexist",
+									"type": "SqlServerStoredProcedure",
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"typeProperties": {
+										"storedProcedureName": "[concat('[', 'asr].[sp_Filelog_Exception]')]",
+										"storedProcedureParameters": {
+											"ADFRunId": {
+												"value": {
+													"value": "1",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"Exception": {
+												"value": "File already processed:Duplicate file",
+												"type": "String"
+											},
+											"Filename": {
+												"value": {
+													"value": "@pipeline().parameters.Filename",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "AzureSqlDatabase",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"parameters": {
+					"Filename": {
+						"type": "String",
+						"defaultValue": "Sample_File.csv"
+					}
+				}
+			}
+		}
+	]
+}
