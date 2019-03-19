@@ -61,4 +61,9 @@ The validation part is similer to above . If all Validation is success pipeline 
 
 This pipeline will load the data to SQL Db using Dataflow . [Schema drift](https://docs.microsoft.com/en-us/azure/data-factory/concepts-data-flow-schema-drift) option will allow to read different  files with variable columns.
 
+Pipeline DF_LoadtoSQLDBandTransformwithSP has 3 activity :
+* Dataflowblobtosql : This will write File to SQL table in Azure SQL DB
+* SQLDB_Transformation : This will call stored procedure o perform the transformatyion
+* DF_SQLDBtoCSV : This will write final result aftre transformation from SQL table to CSV files.
+
 
