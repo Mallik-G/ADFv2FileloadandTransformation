@@ -779,7 +779,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "Fileimport_validate_Transform_Detail",
+											"referenceName": "DF_LoadtoSQLDBandTransformwithSP",
 											"type": "PipelineReference"
 										},
 										"parameters": {}
@@ -842,7 +842,7 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Sourcefile')]",
 				"[concat(variables('factoryId'), '/datasets/sqlDBstoreproc')]",
-				"[concat(variables('factoryId'), '/pipelines/Fileimport_validate_Transform_Detail')]",
+				"[concat(variables('factoryId'), '/pipelines/DF_LoadtoSQLDBandTransformwithSP')]",
 				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase')]"
 			]
 		}
