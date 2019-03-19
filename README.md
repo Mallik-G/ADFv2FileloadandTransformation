@@ -36,7 +36,10 @@ Assumptions :
  * Change the filename 
  * File name pareameter has to be changed  in activity level parameter "Filename".
  
- # Importing the ARM template :
- * Download [sample ADF ARM template](https://github.com/nikris87/ADFv2FileloadandTransformation/blob/master/ADFV2_arm_template.zip) from github
+ # Importing Sample Pipelines :
+ * Import Sample ADF pipeline from my  [Github Repo folder ADFv2Workspace](https://github.com/nikris87/ADFv2FileloadandTransformation/tree/master/ADFv2Workspace) using github integration option in ADF 
+ 
+ 
+ * There are 2 example one for  mater Pieline
 
 
