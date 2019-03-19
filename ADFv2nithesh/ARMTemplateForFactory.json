@@ -843,8 +843,8 @@
 								"referenceName": "Destination_csv",
 								"type": "DatasetReference"
 							},
-							"name": "sink1",
-							"script": "SQLDBtable sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['finalresult'],\n\ttruncate:true) ~> sink1"
+							"name": "Blobcsv",
+							"script": "SQLDBtable sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['finalresult'],\n\ttruncate:true) ~> Blobcsv"
 						}
 					],
 					"transformations": []
