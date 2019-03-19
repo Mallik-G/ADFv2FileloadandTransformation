@@ -18,3 +18,5 @@ and using Dataflow activity(ADF v2) to perform transformation and write to final
 In this Option i am using [Lookup](https://docs.microsoft.com/en-us/azure/data-factory/control-flow-lookup-activity) and [if conditon activity](https://docs.microsoft.com/en-us/azure/data-factory/control-flow-if-condition-activity) for validating the validation critiria.
 
 I am using [Stored proc](https://docs.microsoft.com/en-us/azure/data-factory/transform-data-using-stored-procedure) Activity to perform the transformation. ADF v2 Dataflow will write the incoming source file to SQL DB table and Stored procedure in SQL db will perform the neccessary transformation.
+
+![ADF v2 with stored proc(SQL DB)](https://github.com/nikris87/ADFv2FileloadandTransformation/blob/master/ADFv2Storedproc.PNG)
