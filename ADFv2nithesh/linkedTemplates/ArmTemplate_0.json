@@ -1,0 +1,850 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory Name",
+			"defaultValue": "ADFv2nithesh"
+		},
+		"AzureSqlDatabase_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase'"
+		},
+		"Blobnithsfileshare_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'Blobnithsfileshare'"
+		},
+		"Sourcefile_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "Sample_File.csv"
+		},
+		"Sourcefile_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "adftest/File"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureSqlDatabase_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Blobnithsfileshare')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('Blobnithsfileshare_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Destination_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Blobnithsfileshare",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "finalresult",
+						"container": "adftest"
+					},
+					"columnDelimiter": ",",
+					"firstRowAsHeader": true
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Blobnithsfileshare')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FIlesource_blob')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Blobnithsfileshare",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Sample_File.csv",
+						"folderPath": "File",
+						"container": "adftest"
+					},
+					"columnDelimiter": ",",
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Service Vendor",
+						"type": "String"
+					},
+					{
+						"name": "Line of business",
+						"type": "String"
+					},
+					{
+						"name": "AsurionPO",
+						"type": "String"
+					},
+					{
+						"name": "Asurion SKU",
+						"type": "String"
+					},
+					{
+						"name": "Quantity",
+						"type": "String"
+					},
+					{
+						"name": "Serial Number",
+						"type": "String"
+					},
+					{
+						"name": "CVE SKU",
+						"type": "String"
+					},
+					{
+						"name": "OEM SKU",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Blobnithsfileshare')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SQLDB_taxt_filename')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"tableName": "asr.Sampletable"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Sourcefile')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Blobnithsfileshare",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"format": {
+						"type": "TextFormat",
+						"columnDelimiter": ",",
+						"rowDelimiter": "",
+						"nullValue": "\\N",
+						"treatEmptyAsNull": true,
+						"skipLineCount": 0,
+						"firstRowAsHeader": true
+					},
+					"fileName": "[parameters('Sourcefile_properties_typeProperties_fileName')]",
+					"folderPath": "[parameters('Sourcefile_properties_typeProperties_folderPath')]"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Blobnithsfileshare')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sqlDBstoreproc')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DataflowTransformationandwritetoCSV')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "FIlesource_blob",
+								"type": "DatasetReference"
+							},
+							"name": "Samplefilesource",
+							"script": "source(output(\n\t\t{Service Vendor} as string,\n\t\t{Line of business} as string,\n\t\tPO as string,\n\t\tSKU as string,\n\t\tQuantity as short,\n\t\t{Serial Number} as string,\n\t\t{CVE SKU} as string,\n\t\t{OEM SKU} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tmoveFiles: ['/File','/Archive']) ~> Samplefilesource",
+							"typeProperties": {}
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Destination_csv",
+								"type": "DatasetReference"
+							},
+							"name": "Writetocsvfile",
+							"script": "Selectrequiredcolumn sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['Finalresult']) ~> Writetocsvfile"
+						}
+					],
+					"transformations": [
+						{
+							"name": "SplitDerivedcolumn",
+							"script": "Samplefilesource derive(CVE_Split_Splitcolumn = right({CVE SKU},3)) ~> SplitDerivedcolumn"
+						},
+						{
+							"name": "Selectrequiredcolumn",
+							"script": "SplitDerivedcolumn select(mapColumn(\n\t\t{Service Vendor},\n\t\t{Line of business},\n\t\tPO,\n\t\tSKU,\n\t\tQuantity,\n\t\t{Serial Number},\n\t\t{CVE SKU},\n\t\t{OEM SKU},\n\t\tCVE_Split_Splitcolumn\n\t))~> Selectrequiredcolumn"
+						}
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/FIlesource_blob')]",
+				"[concat(variables('factoryId'), '/datasets/Destination_csv')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dataflowblobtosql')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "FIlesource_blob",
+								"type": "DatasetReference"
+							},
+							"name": "BlobSamplefile",
+							"script": "source(output(\n\t\t{Service Vendor} as string,\n\t\t{Line of business} as string,\n\t\tPO as string,\n\t\tSKU as string,\n\t\tQuantity as short,\n\t\t{Serial Number} as string,\n\t\t{CVE SKU} as string,\n\t\t{OEM SKU} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> BlobSamplefile",
+							"typeProperties": {}
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "SQLDB_taxt_filename",
+								"type": "DatasetReference"
+							},
+							"name": "SQLDB",
+							"script": "BlobSamplefile sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tstaged: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\trecreate:true) ~> SQLDB"
+						}
+					],
+					"transformations": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/FIlesource_blob')]",
+				"[concat(variables('factoryId'), '/datasets/SQLDB_taxt_filename')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_LoadtoSQLDBandTransformwithSP')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Dataflowblobtosql",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Dataflowblobtosql",
+								"type": "DataFlowReference",
+								"datasetParameters": {
+									"BlobSamplefile": {},
+									"SQLDB": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"computeType": "General",
+								"coreCount": 8
+							}
+						}
+					},
+					{
+						"name": "SQLDB_Transformation",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Dataflowblobtosql",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[concat('[', 'asr].[sp_Transformation]')]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureSqlDatabase",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Dataflowblobtosql')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Fileimport_validate_Transform_Detail')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LKP_CheckFileConfig",
+						"description": "Validation 2 : Check if Configuration exist for this file in File Config :\nThis will check config table in SQL DB to verify if file with this name has config .\nIf there is no config SP will return False.",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlSource",
+								"sqlReaderStoredProcedureName": "[concat('[', 'asr].[sp_FileConfigCheck]')]",
+								"storedProcedureParameters": {
+									"Filename": {
+										"type": "String",
+										"value": {
+											"value": "@pipeline().parameters.Filename",
+											"type": "Expression"
+										}
+									},
+									"Reamrks": {
+										"type": "String",
+										"value": "Check FIle exist"
+									}
+								}
+							},
+							"dataset": {
+								"referenceName": "sqlDBstoreproc",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "CheckConfigExist",
+						"description": "Based on file config flag from previous Lookup step this will redirect if else condition Accordingly.\n\nIf File config exist True condition part will call dataflow to load File and perform transformation.\n\nIf file doesn't Exist false condition will calls a stored procedure from Azure SQL DB and Logs an Exception.",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "LKP_CheckFileConfig",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@{equals(activity('LKP_CheckFileConfig').output.firstRow.fileexist,1)}",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "Missing_Config_Exception",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[concat('[', 'asr].[sp_Filelog_Exception]')]",
+										"storedProcedureParameters": {
+											"ADFRunId": {
+												"value": "1",
+												"type": "Int32"
+											},
+											"Exception": {
+												"value": "Config is missing",
+												"type": "String"
+											},
+											"Filename": {
+												"value": {
+													"value": "@pipeline().parameters.Filename",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "AzureSqlDatabase",
+										"type": "LinkedServiceReference"
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "DataFlow file load and transformation",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "DataflowTransformationandwritetoCSV",
+											"type": "DataFlowReference",
+											"datasetParameters": {
+												"Samplefilesource": {},
+												"Writetocsvfile": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"computeType": "General",
+											"coreCount": 8
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"parameters": {
+					"Filename": {
+						"type": "String",
+						"defaultValue": "Sample_File.csv"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/sqlDBstoreproc')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase')]",
+				"[concat(variables('factoryId'), '/dataflows/DataflowTransformationandwritetoCSV')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Fileimport_validate_Transform_DF')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "GetFile_Column_Count",
+						"description": "You can use this to get Met data activity if you want to retrieve file metadata in case you are triggering pipeline based on new file event on Blob ",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Sourcefile",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"columnCount",
+								"itemName",
+								"exists"
+							]
+						}
+					},
+					{
+						"name": "CheckIfFileLareadyLoaded",
+						"description": "Validation 1 : Check if file already loaded :\nThis will check log table in SQL DB to varify if file with this name is already processed .If its a new file stored procedure will insert the record to log table .",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "GetFile_Column_Count",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlSource",
+								"sqlReaderStoredProcedureName": "[concat('[', 'asr].[sp_Filelogtest]')]",
+								"storedProcedureParameters": {
+									"Filename": {
+										"type": "String",
+										"value": {
+											"value": "@activity('GetFile_Column_Count').output.itemName",
+											"type": "Expression"
+										}
+									},
+									"Reamrks": {
+										"type": "String",
+										"value": "File insert"
+									}
+								}
+							},
+							"dataset": {
+								"referenceName": "sqlDBstoreproc",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": true
+						}
+					},
+					{
+						"name": "if file exist",
+						"description": "Based on file already processed or not flag from previous Lookup step this will redirect if else condition Accordingly.\n\nIf File already exist True condition part will calls a stored procedure from Azure SQL DB and Logs an Exception.\n\nIf file doesn't Exist false condition will call another pipeline to validate the another condition.",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "CheckIfFileLareadyLoaded",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@{equals(activity('CheckIfFileLareadyLoaded').output.firstRow.fileexist,1)}",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "New_file_Activity",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "Fileimport_validate_Transform_Detail",
+											"type": "PipelineReference"
+										},
+										"parameters": {}
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "WriteException_Fileexist",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[concat('[', 'asr].[sp_Filelog_Exception]')]",
+										"storedProcedureParameters": {
+											"ADFRunId": {
+												"value": {
+													"value": "1",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"Exception": {
+												"value": "File already processed:Duplicate file",
+												"type": "String"
+											},
+											"Filename": {
+												"value": {
+													"value": "@pipeline().parameters.Filename",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "AzureSqlDatabase",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"parameters": {
+					"Filename": {
+						"type": "String",
+						"defaultValue": "Sample_File.csv"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Sourcefile')]",
+				"[concat(variables('factoryId'), '/datasets/sqlDBstoreproc')]",
+				"[concat(variables('factoryId'), '/pipelines/Fileimport_validate_Transform_Detail')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Fileimport_validate_Transform_SP')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "GetFile_Column_Count",
+						"description": "You can use this to get Met data activity if you want to retrieve file metadata in case you are triggering pipeline based on new file event on Blob ",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Sourcefile",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"columnCount",
+								"itemName",
+								"exists"
+							]
+						}
+					},
+					{
+						"name": "CheckIfFileLareadyLoaded",
+						"description": "Validation 1 : Check if file already loaded :\nThis will check log table in SQL DB to varify if file with this name is already processed .If its a new file stored procedure will insert the record to log table .",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "GetFile_Column_Count",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlSource",
+								"sqlReaderStoredProcedureName": "[concat('[', 'asr].[sp_Filelogtest]')]",
+								"storedProcedureParameters": {
+									"Filename": {
+										"type": "String",
+										"value": {
+											"value": "@activity('GetFile_Column_Count').output.itemName",
+											"type": "Expression"
+										}
+									},
+									"Reamrks": {
+										"type": "String",
+										"value": "File insert"
+									}
+								}
+							},
+							"dataset": {
+								"referenceName": "sqlDBstoreproc",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": true
+						}
+					},
+					{
+						"name": "if file exist",
+						"description": "Based on file already processed or not flag from previous Lookup step this will redirect if else condition Accordingly.\n\nIf File already exist True condition part will calls a stored procedure from Azure SQL DB and Logs an Exception.\n\nIf file doesn't Exist false condition will call another pipeline to validate the another condition.",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "CheckIfFileLareadyLoaded",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@{equals(activity('CheckIfFileLareadyLoaded').output.firstRow.fileexist,1)}",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "New_file_Activity",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "Fileimport_validate_Transform_Detail",
+											"type": "PipelineReference"
+										},
+										"parameters": {}
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "WriteException_Fileexist",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[concat('[', 'asr].[sp_Filelog_Exception]')]",
+										"storedProcedureParameters": {
+											"ADFRunId": {
+												"value": {
+													"value": "1",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"Exception": {
+												"value": "File already processed:Duplicate file",
+												"type": "String"
+											},
+											"Filename": {
+												"value": {
+													"value": "@pipeline().parameters.Filename",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "AzureSqlDatabase",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"parameters": {
+					"Filename": {
+						"type": "String",
+						"defaultValue": "Sample_File.csv"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Sourcefile')]",
+				"[concat(variables('factoryId'), '/datasets/sqlDBstoreproc')]",
+				"[concat(variables('factoryId'), '/pipelines/Fileimport_validate_Transform_Detail')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase')]"
+			]
+		}
+	]
+}
