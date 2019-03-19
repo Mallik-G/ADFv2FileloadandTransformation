@@ -41,7 +41,7 @@ Assumptions :
  
  
  * There are 2 example:
- # Pipeline: Fileimport_validate_Transform_DF  :
+ # 1. Pipeline(Using datafloe transformation): Fileimport_validate_Transform_DF  :
  * This Pipeline has a filename paramtere "Filename"
  * Optioanlly you can get file name using Get Metadata activity.
  * In this Sample i a performing 2 validation
@@ -54,5 +54,11 @@ Assumptions :
      * Validation 2 : Check if Configuration exist for this file in File Config :
        This will check config table in SQL DB to verify if file with this name has config .If there is no config SP will return False.
   * If both validation(duplicate file and config exist) passess then if condition will invoke Azure Dataflow    transformation(DataflowTransformationandwritetoCSV).
+
+# 2. Pipeline(Using stored proc transformation): Fileimport_validate_Transform_SP  :
+
+The validation part is similer to above . If all Validation is success pipeline will call another pipline :DF_LoadtoSQLDBandTransformwithSP
+
+This pipeline will load the data to SQL Db using Dataflow . [Schema drift](https://docs.microsoft.com/en-us/azure/data-factory/concepts-data-flow-schema-drift) option will allow to read different  files with variable columns.
 
 
