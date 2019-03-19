@@ -40,6 +40,12 @@ Assumptions :
  * Import Sample ADF pipeline from my  [Github Repo folder ADFv2Workspace](https://github.com/nikris87/ADFv2FileloadandTransformation/tree/master/ADFv2Workspace) using github integration option in ADF 
  
  
- * There are 2 example one for for 
+ * There are 2 example:
+ # Pipeline: Fileimport_validate_Transform_DF  :
+ * This Pipeline has a filename paramtere "Filename"
+ * Optioanlly you can get file name using Get Metadata activity.
+ *First lookup activity "CheckIfFileLareadyLoaded" is first sample Validation 
+   * Validation 1 : Check if file already loaded 
+     This will check log table in SQL DB to varify if file with this name is already processed .If its a new file stored procedure will      insert the record to log table .
 
 
