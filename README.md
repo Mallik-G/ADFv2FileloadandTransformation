@@ -44,8 +44,15 @@ Assumptions :
  # Pipeline: Fileimport_validate_Transform_DF  :
  * This Pipeline has a filename paramtere "Filename"
  * Optioanlly you can get file name using Get Metadata activity.
- *First lookup activity "CheckIfFileLareadyLoaded" is first sample Validation 
-   * Validation 1 : Check if file already loaded 
-     This will check log table in SQL DB to varify if file with this name is already processed .If its a new file stored procedure will      insert the record to log table .
+ * In this Sample i a performing 2 validation
+   * Validation 1(Lookp activity CheckIfFileLareadyLoaded) : Check if file already loaded 
+     This will check log table in SQL DB to varify if file with this name is already processed .If its a new file ,stored procedure will      insert the record to log table .
+   * Based on file already processed or not flag from previous Lookup step this will redirect if else condition Accordingly.
+     If File already exist True condition part will calls a stored procedure(Stored proc Activitry : WriteException_Fileexist) from          Azure SQL DB and Logs an Exception.
+
+  * If file is new false condition will call another pipeline(Fileimport_validate_Transform_Detail) to validate the second validation .
+     * Validation 2 : Check if Configuration exist for this file in File Config :
+       This will check config table in SQL DB to verify if file with this name has config .If there is no config SP will return False.
+  * If both validation(duplicate file and config exist) passess then if condition will invoke Azure Dataflow    transformation(DataflowTransformationandwritetoCSV).
 
 
