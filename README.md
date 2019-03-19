@@ -30,10 +30,13 @@ I am using [Stored proc](https://docs.microsoft.com/en-us/azure/data-factory/tra
 
 
 ## Adf v2 Sample actvity Explanation :
- Assumptions : 
+Assumptions : 
  * File is already placed in Blob storage .
  * Change the connection string for Blob and SQL DB connection once ARM template is imported to your ADF v2 workspace.
  * Change the filename 
  * File name pareameter has to be changed  in activity level parameter "Filename".
  
+ # Importing the ARM template :
+ * Download [sample ADF ARM template](https://github.com/nikris87/ADFv2FileloadandTransformation/blob/master/ADFV2_arm_template.zip) from github
+
 
